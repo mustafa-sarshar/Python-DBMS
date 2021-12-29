@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 
 # In[] Models
 Base = declarative_base()
-db_engine = None
+DB_Engine = None
 Session = None
 
 class User(Base):
@@ -17,14 +17,12 @@ class User(Base):
 
 # In[] Functions
 def init_db(db_name=""):
-    global db_engine, Session
-    db_engine = create_engine(f"sqlite:///{db_name}", echo=True)
-    Base.metadata.create_all(bind=db_engine)
-    Session = sessionmaker(bind=db_engine)
+    global DB_Engine, Session
+    DB_Engine = create_engine(f"sqlite:///{db_name}", echo=True)
+    Base.metadata.create_all(bind=DB_Engine)
+    Session = sessionmaker(bind=DB_Engine)
 
-def add_user(username="", age=0):
-    global Session
-    
+def add_user(username="", age=0):    
     session = Session()
     user = User()
     user.username = username
@@ -36,9 +34,25 @@ def add_user(username="", age=0):
         print(f"The record for {username} could not be added!!!")
     session.close()
 
-def show_records(order_by=None, filter_by=None):
-    global Session
+def update_user(search_exp=None, new_username=None, new_age=None):
+    session = Session()
 
+    user = session.query(User).filter(eval(search_exp)).first()
+    if user:
+        if new_username: user.username = new_username
+        if new_age: user.age = new_age
+    session.commit()
+    session.close()
+
+def delete_user(search_exp=None):
+    session = Session()
+
+    user = session.query(User).filter(eval(search_exp)).first()
+    session.delete(user)
+    session.commit()
+    session.close()
+
+def show_records(order_by=None, filter_by=None):
     session = Session()
     users = None
     if order_by: users = session.query(User).order_by(order_by)
@@ -52,14 +66,20 @@ def show_records(order_by=None, filter_by=None):
 if __name__ == "__main__":
     init_db(db_name="database.db")
 
-    # add_user(username="mussar", age=30)
-    # add_user(username="bigboy", age=44)
-    # add_user(username="littlecutie", age=15)
-    # add_user(username="niceee", age=25)
+    add_user(username="mussar", age=30)
+    add_user(username="bigboy", age=44)
+    add_user(username="littlecutie", age=15)
+    add_user(username="niceee", age=25)
+    add_user(username="fakeuser", age=0)
 
-    # show_records()
-    # show_records(order_by=User.username)
+    update_user(search_exp="User.username=='bigboy'", new_age=89)
+
+    show_records()
+    show_records(order_by=User.username)
     show_records(filter_by="User.username=='mussar'")
     show_records(filter_by="User.age>=30")
+
+    delete_user(search_exp="User.username=='fakeuser'")
+    show_records()
 
     print("ByeBye")
