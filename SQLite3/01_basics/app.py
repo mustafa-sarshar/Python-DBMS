@@ -6,8 +6,6 @@ Inspired by:
 import sqlite3
 
 # In[] Inits
-# Flags
-GET_INFO = True
 DB_ADDRESS = "database.db"
 TABLE_NAME = "users"
 
@@ -59,7 +57,5 @@ if __name__ == "__main__":
     add_user(db_address=DB_ADDRESS, table_name=TABLE_NAME, fname="Yu", lname="Jang", gender="diverse", age=50)
     print("\nThese records are added to the database:\n")
     show_data(db_address=DB_ADDRESS, table_name=TABLE_NAME, order_by="fname")
-    # while GET_INFO:
-    #     pass
 
     print("\nBye Bye!!!")
