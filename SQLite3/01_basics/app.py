@@ -8,35 +8,58 @@ import sqlite3
 # In[] Inits
 # Flags
 GET_INFO = True
+DB_ADDRESS = "database.db"
+TABLE_NAME = "users"
 
-# Creating a Connection object that represents the database
-con = sqlite3.connect("database.db") # The special path name :memory: can be provided to create a temporary database in RAM.
-# Once a Connection has been established, create a Cursor object and call its execute() method to perform SQL commands
-cur = con.cursor()
+# In[] Functions
+def reset_db(db_address=""):
+    import os
+    if os.path.exists(db_address):
+        os.remove(db_address)
 
-# Create table
-cur.execute('''
-    CREATE TABLE stocks (
-        fname text,
-        lname text,
-        gender text,
-        age real,
-    )
-''')
+def init_db(db_address="", table_name=""):
+    # Creating a Connection object that represents the database
+    con = sqlite3.connect(db_address) # The special path name :memory: can be provided to create a temporary database in RAM.
 
-# Insert a row of data
-cur.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
+    # Create users table
+    cur = con.cursor()
+    statement = f"""CREATE TABLE '{table_name}'
+                    (fname text, lname text, gender text, age real)"""
+    cur.execute(statement)
+    con.commit()
+    con.close()
 
-# Save (commit) the changes
-con.commit()
+def add_user(db_address="", table_name="", fname="", lname="", gender="", age=0):
+    con = sqlite3.connect(db_address)
+    cur = con.cursor()    
 
-# We can also close the connection if we are done with it.
-# Just be sure any changes have been committed or they will be lost.
-con.close()
+    # Insert a row of data
+    statement = f"""INSERT INTO '{table_name}'
+                    VALUES
+                        ('{fname}', '{lname}', '{gender}', {age})"""
+    cur.execute(statement)
+    con.commit()
+    con.close()
+
+def show_data(db_address="", table_name="", order_by=""):
+    con = sqlite3.connect(db_address)
+    cur = con.cursor()
+    statement = f"""SELECT * FROM '{table_name}'
+                    ORDER BY '{order_by}'"""
+    for row in cur.execute(statement):
+        print(row)
+    con.close()
 
 # In[] App
 if __name__ == "__main__":
-    while GET_INFO:
-        pass
+    reset_db(db_address=DB_ADDRESS)
+    init_db(db_address=DB_ADDRESS, table_name=TABLE_NAME)
+    add_user(db_address=DB_ADDRESS, table_name=TABLE_NAME, fname="Mustafa", lname="Sarshar", gender="male", age=33)
+    add_user(db_address=DB_ADDRESS, table_name=TABLE_NAME, fname="Anna", lname="Zieger", gender="female", age=21)
+    add_user(db_address=DB_ADDRESS, table_name=TABLE_NAME, fname="Yu", lname="Jang", gender="diverse", age=50)
+    print("\nThese records are added to the database:\n")
+    show_data(db_address=DB_ADDRESS, table_name=TABLE_NAME, order_by="fname")
+    # while GET_INFO:
+    #     pass
 
-    print("Bye Bye!!!")
+    print("\nBye Bye!!!")
