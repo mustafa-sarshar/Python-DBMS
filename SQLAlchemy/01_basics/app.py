@@ -4,9 +4,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
 # In[] Models
-Base = declarative_base()
 DB_Engine = None
 Session = None
+Base = declarative_base()
 
 class User(Base):
     __tablename__ = "user"
